@@ -88,7 +88,7 @@ getSunlightDT <- function(df) {
   df_all[, SOLRAD := ifelse(SOLRAD <= 0, 0, SOLRAD)]
   colnames(df_all) <- toupper(colnames(df_all))
   # remove temporary calculations
-  cols <- c(names(df), "SOLRAD", "SUNRISE", "SUNSET")
+  cols <- c(names(df), "SOLRAD", "SUNRISE", "SUNSET","ZENITH")
   df_result <- df_all[, ..cols]
   df_result[, SUNLIGHT_HOURS := SUNSET - SUNRISE]
   return(df_result)
@@ -109,7 +109,7 @@ getSunlight <- function(dates, timezone, latitude, longitude) {
   df$LONG <- longitude
   df_sunlight <- getSunlightDT(df)
   setnames(df_sunlight, c("TIMESTAMP"), c("DATE"))
-  result <- df_sunlight[, c("DATE", "LAT", "LONG", "SOLRAD", "SUNRISE", "SUNSET", "SUNLIGHT_HOURS")]
+  result <- df_sunlight[, c("DATE", "LAT", "LONG", "SOLRAD", "SUNRISE", "SUNSET", "ZENITH","SUNLIGHT_HOURS")]
   return(result)
 }
 

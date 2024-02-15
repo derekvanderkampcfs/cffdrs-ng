@@ -365,6 +365,145 @@ dmc_drying_ratio <- function(temp, rh) {
   return(pmax(0.0, HOURLY_K_DMC * (temp + DMC_OFFSET_TEMP) * (100.0 - rh) * 0.0001))
 }
 
+PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) {
+  
+  LAI = 1.77  # need to convert to w m-2
+  Io = 1367
+  a = -0.9
+  b = -0.52
+  alb_g = 0.185 # albedo of forest floor taken from van der Kamp (2017)
+  e_veg = 0.95
+  C_TO_K = 273.15
+  SB = 5.67e-8 # W/K4m2
+  wind_height = 1.5 # m HOW TO GET HEIGHT FROM THE ORIGINAL DATAFRAME???
+  disp_height = 0# m displacement height THIS IS CURRENTLY AN UNINFORMED GUESS
+  z_o = 0.01
+  LofVap = 2260000 # latent heat of vaporisation (J/kg) (from https://link.springer.com/referenceworkentry/10.1007%2F978-90-481-2642-2_327)
+  psychro = 64 # Psychometric constant (Pa/C) (taken from the 500 m elevation value from Table 2.2 of https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables)
+  RHO_A = 1.09266 # density of air (kg/m^3)
+  C_A = 1.00467e3 # specific heat capacity of air (J kg-1 K-1) From Stull (1988)
+  k = 0.40 # von Karman constant (from https://glossary.ametsoc.org/wiki/Von_k%C3%A1rm%C3%A1n%27s_constant)
+  #############################################################################
+  ## Temp and humidity offsets
+  
+  temp_dew_offsets = 
+    data.frame(
+      LAI = 
+        c(0.504983632,0.509250506,0.499163533,0.485024421,0.454583569,0.335851747,0.014481335,
+          -0.511647205,-0.838046762,-0.900700488,-0.868561299,-0.808537301,-0.740301042,
+          -0.742982954,-0.747113325,-0.792584403,-0.810199017,-0.730489005,-0.540612230,-0.281341731,
+          0.005576039,0.259399729,0.392210174,0.469243407,0.159680725,0.176259482,0.173411888,
+          0.150930531,0.141818032,0.102764684,0.043796220,-0.053102953,0.008397840,0.115843835,
+          0.186544227,0.244130304,0.262901981,0.300367507,0.319663516,0.364284245,0.420607151,
+          0.449535742,0.387823733,0.301838880,0.169620560,0.115411554,0.131482106,0.154111892),
+      hour = rep(0:23,2),
+      name = rep(c("airtemp","dewtemp"),each = 24))
+  
+  
+  airtemp_sub = temp + temp_dew_offsets$LAI[which(temp_dew_offsets$hour == 3 & temp_dew_offsets$name == "airtemp")]*LAI
+  
+  dewtemp = (243.04*(log(rh/100)+((17.625*temp)/(243.04+temp))) /(17.625 - log(rh/100)-((17.625*temp)/(243.04+temp))))
+  
+  dewtemp_sub = dewtemp + temp_dew_offsets$LAI[which(temp_dew_offsets$hour == 3 & temp_dew_offsets$name == "dewtemp")]*LAI
+  
+  dewtemp_sub = ifelse(dewtemp_sub > airtemp_sub,airtemp_sub,dewtemp_sub)
+  
+  SVP_sub=0.6108*exp(17.27*airtemp_sub/(237.3+airtemp_sub))# Sat vapour pressure (kPa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  
+  VP_sub=0.6108*exp(17.27*dewtemp_sub/(237.3+dewtemp_sub))# Sat vapour pressure (kPa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  
+  VPD_sub = SVP_sub - VP_sub
+  
+  
+  #############################################################################
+  
+  #############################################################################
+  ### Radiation offset
+  
+  altitude = microclima::solalt(hour(timestamp),long = long,lat = lat,
+                                julian =  microclima::julday(year(timestamp), month(timestamp), mday(timestamp)),
+                                merid = 0,dst =  timezone)/180*pi
+  
+  shortwaveD_Extra = ifelse(Io*cos(zenith)<0, 0, Io*sin(zenith))# extra-terr. Shortwave (kW m-2)
+  
+  kt = 1-microclima::cloudfromrad(rad = solrad,
+                                  tme=as.POSIXlt(timestamp),
+                                  lat = lat,
+                                  long = long,
+                                  tc = temp,
+                                  h = microclima::humidityconvert(rh,p = (1 - 2.25577e-5 *elev)^5.25588,tc = temp)$specific,
+                                  p = ((1 - 2.25577e-5 *elev)^5.25588),
+                                  merid = 0,
+                                  dst = timezone)
+  
+  diffProp = microclima::difprop(rad = solrad,
+                                 julian =  microclima::julday(year(timestamp), month(timestamp), mday(timestamp)),
+                                 localtime =hour(timestamp) + minute(timestamp)/60,
+                                 lat = lat,
+                                 long = long,
+                                 merid = 0,
+                                 dst = timezone)
+  
+  shortwaveDDiff_open = ifelse(solrad*diffProp < solrad,solrad*diffProp,solrad)
+  
+  shortwaveDDir_open = solrad- shortwaveDDiff_open
+  
+  SVP_open=0.6108*exp(17.27*temp/(237.3+temp))# Sat vapour pressure (kPa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  VP_open=(rh/100*SVP_open) #vapour pressure (kPa))
+  e_clear_paper = 0.23 + 0.433*(VP_open/(temp+C_TO_K))^(1/8) # from Klok and Oerlemans  (2002). 
+  em_atm = e_clear_paper*(1 - kt^2) + 0.976*kt^2 # from Klok and Oerlemans  (2002).
+  longwaveD_open=em_atm*SB*((temp+C_TO_K)^4)
+
+  
+  DiffTrans = exp(a*LAI)
+  
+  shortwaveDDiff_sub = shortwaveDDiff_open*DiffTrans
+  shortwaveDDir_sub = ifelse(altitude<0,0,shortwaveDDir_open*exp(b*LAI/sin(altitude)))
+  
+  shortwaveD_sub = shortwaveDDir_sub + shortwaveDDiff_sub
+  shortwaveU_sub = shortwaveD_sub*alb_g
+  longwaveD_sub = longwaveD_open*DiffTrans + (1 - DiffTrans)*e_veg*SB*((airtemp_sub+C_TO_K)^4)
+  longwaveU_sub = e_veg*SB*((airtemp_sub+C_TO_K)^4)
+  netrad_sub = shortwaveD_sub - shortwaveU_sub + longwaveD_sub - longwaveU_sub
+  
+  #############################################################################
+  
+  #############################################################################
+  ### Windspeed Reduction
+  
+  ws = ws/3.6
+  
+  par = c(2.78,0.6100,0.1721,-3.360,-0.2703)
+  
+  WAF = (par[2] - par[3]) * exp(par[4] * LAI) + par[3]
+  
+  ## predict the adjustment factor used for low wind speeds
+  WSA = exp(par[5] * (ws - par[1]))
+  
+  ## calculate the final wind adjustment factor by applying the low wind speed adjustment factor to the lower winds
+  WAF_full = ifelse(ws > par[1], WAF, WSA * WAF)
+  
+  windSpeed_sub = ws * WAF_full*3.6
+  #############################################################################
+  
+  #############################################################################
+  ### PET
+  
+  
+  satSlope_sub = 4098*(SVP_sub*1000)/(airtemp_sub + 237.3)^2 # slope of VP curve (Pa/C) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  
+  ra_sub=(log((wind_height-disp_height)/z_o))^2/(k^2*windSpeed_sub)
+      
+  PET_sub  = (satSlope_sub*netrad_sub + RHO_A*C_A*(VPD_sub)/ra_sub)/(LofVap*(satSlope_sub + psychro ))*3600 ## 3600 factor requred to go from kg m-2 s-1 to mm hr-1
+  
+  
+  
+  return(PET_sub)
+  
+}
+
+
+
 duff_moisture_code <- function(
     last_dmc,
     temp,
@@ -483,7 +622,7 @@ rain_since_intercept_reset <- function(temp,
 #' @param     dmc_old         previous value for Duff Moisture Code
 #' @param     dc_old          previous value for Drought Code
 #' @return                    hourly values FWI and weather stream
-.stnHFWI <- function(w, ffmc_old, dmc_old, dc_old) {
+.stnHFWI <- function(w, timezone,ffmc_old, dmc_old, dc_old) {
   if (!isSequentialHours(w)) {
     stop("Expected input to be sequential hourly weather")
   }
@@ -590,6 +729,22 @@ rain_since_intercept_reset <- function(temp,
       canopy$rain_total
     )
     cur$dc <- dc_$dc
+    cur$kold = dmc_drying_ratio(
+      cur$temp,
+      cur$rh
+    )
+    cur$pet <-PET(
+      cur$temp,
+      cur$rh,
+      cur$solrad,
+      cur$ws,
+      cur$zenith,
+      cur$timestamp,
+      cur$lat,
+      cur$long,
+      timezone,
+      elev = 0
+    )
     cur$isi <- initial_spread_index(cur$ws, cur$ffmc)
     cur$bui <- buildup_index(cur$dmc, cur$dc)
     cur$fwi <- fire_weather_index(cur$isi, cur$bui)
@@ -699,7 +854,7 @@ hFWI <- function(df_wx, timezone, ffmc_old = 85, dmc_old = 6, dc_old = 15) {
       setnames(sunlight, c("DATE"), c("TIMESTAMP"))
       sunlight$TIMESTAMP <- as_datetime(sunlight$TIMESTAMP)
       w <- merge(by_year, sunlight, by = c("TIMESTAMP", "LAT", "LONG"))
-      r <- .stnHFWI(w, ffmc_old, dmc_old, dc_old)
+      r <- .stnHFWI(w, timezone, ffmc_old, dmc_old, dc_old)
       results <- rbind(results, r)
     }
   }

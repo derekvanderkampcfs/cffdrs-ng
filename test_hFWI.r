@@ -41,7 +41,7 @@ test_hfwi <- function(df = read.csv("./data/test_hffmc.csv"), timezone = -6, fil
   cols_cmp <- c(
     cols_id,
     "TIMESTAMP", "TEMP", "WS", "RH", "PREC",
-    "FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR",
+    "FFMC", "DMC", "DC", "PET","KOLD","ISI", "BUI", "FWI", "DSR",
     "DFFMC", "DDMC", "DDC", "DISI", "DBUI", "DFWI", "DDSR"
   )
   r <- r[, ..cols_cmp]
