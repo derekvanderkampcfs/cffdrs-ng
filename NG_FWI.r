@@ -526,6 +526,12 @@ duff_moisture_code <- function(
     solrad,
     sunrise,
     sunset,
+    zenith,
+    timestamp,
+    lat,
+    long,
+    timezone,
+    elev = 0,
     dmc_before_rain,
     rain_total_prev,
     rain_total) {
@@ -542,10 +548,22 @@ duff_moisture_code <- function(
   dmc <- pmax(0.0, last_dmc - dmc_wetting_hourly)
   sunrise_start <- round(sunrise + OFFSET_SUNRISE)
   sunset_start <- round(sunset + OFFSET_SUNSET)
-  dmc_hourly <- ifelse(hour >= sunrise_start & hour < sunset_start,
-    dmc_drying_ratio(temp, rh),
-    0.0
-  )
+  # dmc_hourly <- ifelse(hour >= sunrise_start & hour < sunset_start,
+  #   dmc_drying_ratio(temp, rh),
+  #   0.0
+  #)
+  dmc_hourly = max(c(0,1.45*PET(
+    temp,
+    rh,
+    solrad,
+    ws,
+    zenith,
+    timestamp,
+    lat,
+    long,
+    timezone,
+    elev = 0
+  )))
   dmc <- dmc + dmc_hourly
   # HACK: return two values since C uses a pointer to assign a value
   return(list(dmc = dmc, dmc_before_rain = dmc_before_rain))
@@ -717,6 +735,11 @@ rain_since_intercept_reset <- function(temp,
       cur$solrad,
       cur$sunrise,
       cur$sunset,
+      cur$zenith,
+      cur$timestamp,
+      cur$lat,
+      cur$long,
+      cur$timezone,
       dmc_$dmc_before_rain,
       canopy$rain_total_prev,
       canopy$rain_total
