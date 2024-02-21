@@ -563,7 +563,7 @@ duff_moisture_code <- function(
     long,
     timezone,
     elev = 0
-  )))
+  )$PET_fwi))
   dmc <- dmc + dmc_hourly
   # HACK: return two values since C uses a pointer to assign a value
   return(list(dmc = dmc, dmc_before_rain = dmc_before_rain))
