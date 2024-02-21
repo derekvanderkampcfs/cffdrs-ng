@@ -84,8 +84,8 @@ getSunlightDT <- function(df) {
   df_all[, TST := as.numeric(HR) * 60.0 + TIMEOFFSET]
   df_all[, HOURANGLE := TST / 4 - 180]
   df_all[, ZENITH := acos(sin(LAT * pi / 180) * sin(DECL) + cos(LAT * pi / 180) * cos(DECL) * cos(HOURANGLE * pi / 180))]
-  df_all[, SOLRAD := 0.95 * cos(ZENITH)]
-  df_all[, SOLRAD := ifelse(SOLRAD <= 0, 0, SOLRAD)]
+  # df_all[, SOLRAD := 0.95 * cos(ZENITH)]
+  # df_all[, SOLRAD := ifelse(SOLRAD <= 0, 0, SOLRAD)]
   colnames(df_all) <- toupper(colnames(df_all))
   # remove temporary calculations
   cols <- c(names(df), "SOLRAD", "SUNRISE", "SUNSET","ZENITH")
