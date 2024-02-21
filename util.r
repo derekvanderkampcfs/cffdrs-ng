@@ -110,7 +110,8 @@ getSunlight <- function(dates, timezone, latitude, longitude) {
   df$LONG <- longitude
   df_sunlight <- getSunlightDT(df)
   setnames(df_sunlight, c("TIMESTAMP"), c("DATE"))
-  result <- df_sunlight[, c("DATE", "LAT", "LONG", "SOLRAD", "SUNRISE", "SUNSET", "ZENITH","SUNLIGHT_HOURS")]
+  #result <- df_sunlight[, c("DATE", "LAT", "LONG", "SOLRAD", "SUNRISE", "SUNSET", "ZENITH","SUNLIGHT_HOURS")]
+  result <- df_sunlight[, c("DATE", "LAT", "LONG",  "SUNRISE", "SUNSET", "ZENITH","SUNLIGHT_HOURS")]
   return(result)
 }
 
