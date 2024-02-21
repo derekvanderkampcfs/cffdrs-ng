@@ -740,10 +740,12 @@ rain_since_intercept_reset <- function(temp,
       cur$lat,
       cur$long,
       cur$timezone,
+      elev = 0,
       dmc_$dmc_before_rain,
       canopy$rain_total_prev,
       canopy$rain_total
     )
+    
     cur$dmc <- dmc_$dmc
     dc_ <- drought_code(
       dc_$dc,
