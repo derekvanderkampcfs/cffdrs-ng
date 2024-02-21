@@ -847,7 +847,7 @@ hFWI <- function(df_wx, timezone, ffmc_old = 85, dmc_old = 6, dc_old = 15) {
   cols_extra_solar <- intersect(names(wx), c("SOLRAD", "SUNRISE", "SUNSET", "SUNLIGHT_HOURS"))
   if (0 < length(cols_extra_solar)) {
     warning(sprintf("Ignoring and recalculating columns: [%s]", paste0(cols_extra_solar, collapse = ", ")))
-    wx <- wx[, -..cols_extra_solar]
+ #   wx <- wx[, -..cols_extra_solar]
   }
   stopifnot(all(wx$RH >= 0 & wx$RH <= 100))
   stopifnot(all(wx$WS >= 0))
