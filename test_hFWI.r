@@ -44,7 +44,7 @@ test_hfwi <- function(df = read.csv("./data/test_hffmc.csv"), timezone = -6, fil
     "FFMC", "DMC", "DC","KOLD","ISI", "BUI", "FWI", "DSR",
     "DFFMC", "DDMC", "DDC", "DISI", "DBUI", "DFWI", "DDSR","WINDSPEED_FWI",
     "NETRAD_FWI","SHORTWAVED_FWI","LONGWAVED_FWI","AIRTEMP_FWI",
-    "DEWTEMP_FWI","PET_FWI","KT_FWI","DIFFPROP_FWI","SHORTWAVEDDIFF_FWI"
+    "DEWTEMP_FWI","PET_FWI","KT_FWI","DIFFPROP_FWI","SHORTWAVEDDIFF_FWI","SOLRAD"
   )
   
   r <- r[, ..cols_cmp]
