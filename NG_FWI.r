@@ -498,13 +498,17 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
   
   
   
-  return(list(windSpeed_sub_fwi =windSpeed_sub,
-              netrad_sub_fwi = netrad_sub,
-              shortwaveD_sub_fwi = shortwaveD_sub,
-              longwaveD_sub_fwi = longwaveD_sub,
-              airtemp_sub_fwi = airtemp_sub,
-              dewtemp_sub_fwi = dewtemp_sub,
-              PET_sub_fwi = PET_sub))
+  return(list(windSpeed_fwi =windSpeed_sub,
+              netrad_fwi = netrad_sub,
+              kt_fwi = kt,
+              diffProp_fwi = diffProp,
+              shortwaveDDiff_fwi = shortwaveDDiff_open,
+              shortwaveD_fwi = shortwaveD_sub,
+              longwaveD_fwi = longwaveD_sub,
+              airtemp_fwi = airtemp_sub,
+              dewtemp_fwi = dewtemp_sub,
+              PET_fwi = PET_sub,
+              ))
   
 }
 
@@ -752,18 +756,18 @@ rain_since_intercept_reset <- function(temp,
       timezone,
       elev = 0
     )
-    cur$windSpeed_sub_fwi = pet_out$windSpeed_sub_fwi
-    cur$netrad_sub_fwi = pet_out$netrad_sub_fwi
-    cur$shortwaveD_sub_fwi = pet_out$shortwaveD_sub_fwi
-    cur$longwaveD_sub_fwi = pet_out$longwaveD_sub_fwi
-    cur$airtemp_sub_fwi = pet_out$airtemp_sub_fwi
-    cur$dewtemp_sub_fwi = pet_out$dewtemp_sub_fwi
-    cur$PET_sub_fwi = pet_out$PET_sub_fwi
-    
+    cur$windSpeed_fwi = pet_out$windSpeed_fwi
+    cur$netrad_fwi = pet_out$netrad_fwi
+    cur$shortwaveD_fwi = pet_out$shortwaveD_fwi
+    cur$longwaveD_fwi = pet_out$longwaveD_fwi
+    cur$airtemp_fwi = pet_out$airtemp_fwi
+    cur$dewtemp_fwi = pet_out$dewtemp_fwi
+    cur$PET_fwi = pet_out$PET_fwi
+    cur$kt_fwi =  pet_out$
+    cur$diffProp_fwi =  pet_out$diffProp_fwi
+    cur$shortwaveDDiff_fwi =   pet_out$shortwaveDDiff_fwi
       
       
-      
-    
     cur$isi <- initial_spread_index(cur$ws, cur$ffmc)
     cur$bui <- buildup_index(cur$dmc, cur$dc)
     cur$fwi <- fire_weather_index(cur$isi, cur$bui)
