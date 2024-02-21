@@ -763,7 +763,7 @@ rain_since_intercept_reset <- function(temp,
     cur$airtemp_fwi = pet_out$airtemp_fwi
     cur$dewtemp_fwi = pet_out$dewtemp_fwi
     cur$PET_fwi = pet_out$PET_fwi
-    cur$kt_fwi =  pet_out$
+    cur$kt_fwi =  pet_out$kt_fwi
     cur$diffProp_fwi =  pet_out$diffProp_fwi
     cur$shortwaveDDiff_fwi =   pet_out$shortwaveDDiff_fwi
       
