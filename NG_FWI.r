@@ -579,7 +579,7 @@ duff_moisture_code <- function(
     timezone,
     elev = 0)$PET_fwi
   
-  qmap_pet_raw = read.csv("data/qmap_pet.csv")
+  qmap_pet_raw = read.csv("qmap_pet.csv")
   qmap_pet = list(par = list(modq = qmap_pet_raw$modq,fitq = qmap_pet_raw$fitq),wet.days = F)
   attr(qmap_pet,"class") <- "fitQmapQUANT"
   
