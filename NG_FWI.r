@@ -568,8 +568,8 @@ duff_moisture_code <- function(
   #)
 
   dmc_hourly =  
-    doQmapQUANT(
-      PET(
+   
+      1.4*PET(
         temp,
         rh,
         solrad,
@@ -579,9 +579,8 @@ duff_moisture_code <- function(
         lat,
         long,
         timezone,
-        elev = 0)$PET_fwi,
-      qmap_pet
-    )
+        elev = 0)$PET_fwi
+  
   dmc <- dmc + dmc_hourly
   # HACK: return two values since C uses a pointer to assign a value
   return(list(dmc = dmc, dmc_before_rain = dmc_before_rain))
