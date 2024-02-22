@@ -444,7 +444,7 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
                                          merid = 0,
                                          dst = timezone)
   )
-  LAST_KT = kt
+  LAST_KT <<- kt
   
   diffProp = ifelse(altitude < 0,
                     LAST_DIFFPROP,
@@ -456,7 +456,7 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
                                         merid = 0,
                                         dst = timezone)
   )
-  LAST_DIFFPROP = diffProp
+  LAST_DIFFPROP <<- diffProp
   
   shortwaveDDiff_open = ifelse(solrad*diffProp < solrad,solrad*diffProp,solrad)
   
