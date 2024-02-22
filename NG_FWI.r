@@ -568,7 +568,7 @@ duff_moisture_code <- function(
         lat,
         long,
         timezone,
-        elev = 0)$PET_fw,
+        elev = 0)$PET_fwi,
       qmap_pet
     )
   dmc <- dmc + dmc_hourly
