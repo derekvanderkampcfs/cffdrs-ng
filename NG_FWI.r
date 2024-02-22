@@ -7,6 +7,9 @@ source("old_cffdrs.r")
 
 load("qmap_pet.Rdata")
 
+LAST_KT <- 0.5
+LAST_DIFFPROP <- 0.5
+
 DAILY_K_DMC_DRYING <- 1.894
 DAILY_K_DC_DRYING <- 3.937
 
@@ -429,23 +432,31 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
   
   shortwaveD_Extra = ifelse(Io*cos(zenith)<0, 0, Io*sin(zenith))# extra-terr. Shortwave (kW m-2)
   
-  kt = 1-microclima::cloudfromrad(rad = solrad,
-                                  tme=as.POSIXlt(timestamp),
-                                  lat = lat,
-                                  long = long,
-                                  tc = temp,
-                                  h = microclima::humidityconvert(rh,p = (1 - 2.25577e-5 *elev)^5.25588,tc = temp)$specific,
-                                  p = ((1 - 2.25577e-5 *elev)^5.25588),
-                                  merid = 0,
-                                  dst = timezone)
+  kt = ifelse(altitude < 0,
+              LAST_KT,
+              1-microclima::cloudfromrad(rad = solrad,
+                                         tme=as.POSIXlt(timestamp),
+                                         lat = lat,
+                                         long = long,
+                                         tc = temp,
+                                         h = microclima::humidityconvert(rh,p = (1 - 2.25577e-5 *elev)^5.25588,tc = temp)$specific,
+                                         p = 101300*((1 - 2.25577e-5 *elev)^5.25588),
+                                         merid = 0,
+                                         dst = timezone)
+  )
+  LAST_KT = kt
   
-  diffProp = microclima::difprop(rad = solrad,
-                                 julian =  microclima::julday(year(timestamp), month(timestamp), mday(timestamp)),
-                                 localtime =hour(timestamp) + minute(timestamp)/60,
-                                 lat = lat,
-                                 long = long,
-                                 merid = 0,
-                                 dst = timezone)
+  diffProp = ifelse(altitude < 0,
+                    LAST_DIFFPROP,
+                    microclima::difprop(rad = solrad,
+                                        julian =  microclima::julday(year(timestamp), month(timestamp), mday(timestamp)),
+                                        localtime =hour(timestamp) + minute(timestamp)/60,
+                                        lat = lat,
+                                        long = long,
+                                        merid = 0,
+                                        dst = timezone)
+  )
+  LAST_DIFFPROP = diffProp
   
   shortwaveDDiff_open = ifelse(solrad*diffProp < solrad,solrad*diffProp,solrad)
   
