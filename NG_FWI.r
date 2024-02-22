@@ -580,7 +580,7 @@ duff_moisture_code <- function(
     elev = 0)$PET_fwi
   
   qmap_pet_raw = read.csv("qmap_pet.csv")
-  qmap_pet = list(par = list(modq = qmap_pet_raw$modq,fitq = qmap_pet_raw$fitq),wet.days = F)
+  qmap_pet = list(par = list(modq = array(qmap_pet$par$modq,dim = c(length(qmap_pet$par$modq),1)),fitq = array(qmap_pet$par$fitq,dim = c(length(qmap_pet$par$fitq),1))),wet.days = F)
   attr(qmap_pet,"class") <- "fitQmapQUANT"
   
   dmc_hourly =  doQmapQUANT(PET,qmap_pet)
