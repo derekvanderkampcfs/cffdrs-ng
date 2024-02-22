@@ -48,9 +48,9 @@ test_hfwi <- function(df = read.csv("./data/test_hffmc.csv"), timezone = -6, fil
   )
   
   r <- r[, ..cols_cmp]
-  if (!is.null(filename)) {
-    write.table(r, file = filename, sep = ",", row.names = FALSE)
-  }
+  # if (!is.null(filename)) {
+  #   write.table(r, file = filename, sep = ",", row.names = FALSE)
+  # }
   return(r)
 }
 
