@@ -1,8 +1,11 @@
 #' Computes hourly FWI indices for an input hourly weather stream
 library(lubridate)
 library(data.table)
+library(qmap)
 source("util.r")
 source("old_cffdrs.r")
+
+load("qmap_pet.Rdata")
 
 DAILY_K_DMC_DRYING <- 1.894
 DAILY_K_DC_DRYING <- 3.937
@@ -552,18 +555,22 @@ duff_moisture_code <- function(
   #   dmc_drying_ratio(temp, rh),
   #   0.0
   #)
-  dmc_hourly = max(c(0,1.45*PET(
-    temp,
-    rh,
-    solrad,
-    ws,
-    zenith,
-    timestamp,
-    lat,
-    long,
-    timezone,
-    elev = 0
-  )$PET_fwi))
+
+  dmc_hourly =  
+    doQmapQUANT(
+      PET(
+        temp,
+        rh,
+        solrad,
+        ws,
+        zenith,
+        timestamp,
+        lat,
+        long,
+        timezone,
+        elev = 0)$PET_fw,
+      qmap_pet
+    )
   dmc <- dmc + dmc_hourly
   # HACK: return two values since C uses a pointer to assign a value
   return(list(dmc = dmc, dmc_before_rain = dmc_before_rain))
