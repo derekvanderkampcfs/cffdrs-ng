@@ -567,19 +567,24 @@ duff_moisture_code <- function(
   #   0.0
   #)
 
-  dmc_hourly =  
-   
-      1.4*PET(
-        temp,
-        rh,
-        solrad,
-        ws,
-        zenith,
-        timestamp,
-        lat,
-        long,
-        timezone,
-        elev = 0)$PET_fwi
+  PET = PET(
+    temp,
+    rh,
+    solrad,
+    ws,
+    zenith,
+    timestamp,
+    lat,
+    long,
+    timezone,
+    elev = 0)$PET_fwi
+  
+  qmap_pet_raw = read.csv("data/qmap_pet.csv")
+  qmap_pet = list(par = list(modq = qmap_pet_raw$modq,fitq = qmap_pet_raw$fitq),wet.days = F)
+  attr(qmap_pet,"class") <- "fitQmapQUANT"
+  
+  dmc_hourly =  doQmapQUANT(PET,qmap_pet)
+
   
   dmc <- dmc + dmc_hourly
   # HACK: return two values since C uses a pointer to assign a value
