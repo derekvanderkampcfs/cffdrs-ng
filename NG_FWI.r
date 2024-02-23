@@ -373,7 +373,7 @@ dmc_drying_ratio <- function(temp, rh) {
 
 PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) {
   
-  LAI = 1.77  # need to convert to w m-2
+  LAI = 1.77  
   Io = 1367
   a = -0.9
   b = -0.52
@@ -394,7 +394,7 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
   
   temp_dew_offsets = 
     data.frame(
-      LAI = 
+      LAI_coef = 
         c(0.504983632,0.509250506,0.499163533,0.485024421,0.454583569,0.335851747,0.014481335,
           -0.511647205,-0.838046762,-0.900700488,-0.868561299,-0.808537301,-0.740301042,
           -0.742982954,-0.747113325,-0.792584403,-0.810199017,-0.730489005,-0.540612230,-0.281341731,
@@ -406,17 +406,17 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
       name = rep(c("airtemp","dewtemp"),each = 24))
   
   
-  airtemp_sub = temp + temp_dew_offsets$LAI[which(temp_dew_offsets$hour == 3 & temp_dew_offsets$name == "airtemp")]*LAI
+  airtemp_sub = temp + temp_dew_offsets$LAI_coef[which(temp_dew_offsets$hour ==  hour(timestamp) & temp_dew_offsets$name == "airtemp")]*LAI
   
   dewtemp = (243.04*(log(rh/100)+((17.625*temp)/(243.04+temp))) /(17.625 - log(rh/100)-((17.625*temp)/(243.04+temp))))
   
-  dewtemp_sub = dewtemp + temp_dew_offsets$LAI[which(temp_dew_offsets$hour == 3 & temp_dew_offsets$name == "dewtemp")]*LAI
+  dewtemp_sub = dewtemp + temp_dew_offsets$LAI_coef[which(temp_dew_offsets$hour == hour(timestamp)  & temp_dew_offsets$name == "dewtemp")]*LAI
   
   dewtemp_sub = ifelse(dewtemp_sub > airtemp_sub,airtemp_sub,dewtemp_sub)
   
   SVP_sub=0.6108*exp(17.27*airtemp_sub/(237.3+airtemp_sub))*1000# Sat vapour pressure (Pa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
   
-  VP_sub=0.6108*exp(17.27*dewtemp_sub/(237.3+dewtemp_sub))*1000# Sat vapour pressure (Pa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  VP_sub=0.6108*exp(17.27*dewtemp_sub/(237.3+dewtemp_sub))*1000# vapour pressure (Pa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
   
   VPD_sub = SVP_sub - VP_sub
   
