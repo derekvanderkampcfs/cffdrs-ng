@@ -414,9 +414,9 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
   
   dewtemp_sub = ifelse(dewtemp_sub > airtemp_sub,airtemp_sub,dewtemp_sub)
   
-  SVP_sub=0.6108*exp(17.27*airtemp_sub/(237.3+airtemp_sub))# Sat vapour pressure (kPa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  SVP_sub=0.6108*exp(17.27*airtemp_sub/(237.3+airtemp_sub))*1000# Sat vapour pressure (Pa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
   
-  VP_sub=0.6108*exp(17.27*dewtemp_sub/(237.3+dewtemp_sub))# Sat vapour pressure (kPa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  VP_sub=0.6108*exp(17.27*dewtemp_sub/(237.3+dewtemp_sub))*1000# Sat vapour pressure (Pa) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
   
   VPD_sub = SVP_sub - VP_sub
   
