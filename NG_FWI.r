@@ -521,6 +521,7 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
               longwaveD_fwi = longwaveD_sub,
               airtemp_fwi = airtemp_sub,
               dewtemp_fwi = dewtemp_sub,
+              VPD_fwi = VPD_sub,
               PET_fwi = PET_sub,
               solrad = solrad
               ))
@@ -814,6 +815,7 @@ rain_since_intercept_reset <- function(temp,
     cur$kt_fwi =  pet_out$kt_fwi
     cur$diffProp_fwi =  pet_out$diffProp_fwi
     cur$shortwaveDDiff_fwi =   pet_out$shortwaveDDiff_fwi
+    cur$VPD_fwi = pet_out$VPD_fwi
     cur$solrad = cur$solrad
       
       
