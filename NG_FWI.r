@@ -504,7 +504,7 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
   ### PET
   
   
-  satSlope_sub = 4098*(SVP_sub*1000)/(airtemp_sub + 237.3)^2 # slope of VP curve (Pa/C) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
+  satSlope_sub = 4098*(SVP_sub)/(airtemp_sub + 237.3)^2 # slope of VP curve (Pa/C) from: https://www.fao.org/3/x0490e/x0490e0j.htm#annex%202.%20meteorological%20tables
   
   ra_sub=(log((wind_height-disp_height)/z_o))^2/(k^2*windSpeed_sub)
       
