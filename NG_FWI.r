@@ -497,7 +497,7 @@ PET <- function(temp, rh,solrad,ws,zenith,timestamp,lat,long,timezone,elev = 0) 
   ## calculate the final wind adjustment factor by applying the low wind speed adjustment factor to the lower winds
   WAF_full = ifelse(ws > par[1], WAF, WSA * WAF)
   
-  windSpeed_sub = ws * WAF_full*3.6
+  windSpeed_sub = ws * WAF_full
   #############################################################################
   
   #############################################################################
